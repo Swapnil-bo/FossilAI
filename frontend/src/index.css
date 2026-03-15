@@ -1,111 +1,165 @@
-:root {
-  --text: #6b6375;
-  --text-h: #08060d;
-  --bg: #fff;
-  --border: #e5e4e7;
-  --code-bg: #f4f3ec;
-  --accent: #aa3bff;
-  --accent-bg: rgba(170, 59, 255, 0.1);
-  --accent-border: rgba(170, 59, 255, 0.5);
-  --social-bg: rgba(244, 243, 236, 0.5);
-  --shadow:
-    rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
+@import "tailwindcss";
 
-  --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
-  --mono: ui-monospace, Consolas, monospace;
+@plugin "@tailwindcss/typography";
 
-  font: 18px/145% var(--sans);
-  letter-spacing: 0.18px;
-  color-scheme: light dark;
-  color: var(--text);
-  background: var(--bg);
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@custom-variant dark (&:where(.dark, .dark *));
 
-  @media (max-width: 1024px) {
-    font-size: 16px;
-  }
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --text: #9ca3af;
-    --text-h: #f3f4f6;
-    --bg: #16171d;
-    --border: #2e303a;
-    --code-bg: #1f2028;
-    --accent: #c084fc;
-    --accent-bg: rgba(192, 132, 252, 0.15);
-    --accent-border: rgba(192, 132, 252, 0.5);
-    --social-bg: rgba(47, 48, 58, 0.5);
-    --shadow:
-      rgba(0, 0, 0, 0.4) 0 10px 15px -3px, rgba(0, 0, 0, 0.25) 0 4px 6px -2px;
-  }
-
-  #social .button-icon {
-    filter: invert(1) brightness(2);
-  }
+@theme {
+  --color-fossil-900: #0f0f14;
+  --color-fossil-800: #1a1a24;
+  --color-fossil-700: #252535;
+  --color-fossil-600: #3a3a4f;
+  --color-fossil-500: #6b6b85;
+  --color-fossil-400: #9a9ab0;
+  --color-fossil-300: #c5c5d5;
+  --color-fossil-200: #e5e5ef;
+  --color-fossil-100: #f5f5fa;
+  --color-accent: #8b5cf6;
+  --color-accent-light: #a78bfa;
+  --color-accent-dark: #7c3aed;
+  --color-severity-critical: #ef4444;
+  --color-severity-high: #f97316;
+  --color-severity-medium: #eab308;
+  --color-severity-low: #22c55e;
 }
 
 body {
   margin: 0;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-#root {
-  width: 1126px;
-  max-width: 100%;
-  margin: 0 auto;
-  text-align: center;
-  border-inline: 1px solid var(--border);
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-  box-sizing: border-box;
+/* React Flow overrides for dark mode */
+.dark .react-flow__background {
+  background-color: var(--color-fossil-900);
 }
 
-h1,
-h2 {
-  font-family: var(--heading);
-  font-weight: 500;
-  color: var(--text-h);
+.dark .react-flow__minimap {
+  background-color: var(--color-fossil-800);
 }
 
-h1 {
-  font-size: 56px;
-  letter-spacing: -1.68px;
-  margin: 32px 0;
-  @media (max-width: 1024px) {
-    font-size: 36px;
-    margin: 20px 0;
+.dark .react-flow__controls button {
+  background-color: var(--color-fossil-700);
+  color: var(--color-fossil-200);
+  border-color: var(--color-fossil-600);
+}
+
+.dark .react-flow__controls button:hover {
+  background-color: var(--color-fossil-600);
+}
+
+/* Loading bar animation for pipeline stages */
+@keyframes loading-bar {
+  0% {
+    width: 0%;
+  }
+  50% {
+    width: 70%;
+  }
+  100% {
+    width: 100%;
   }
 }
-h2 {
-  font-size: 24px;
-  line-height: 118%;
-  letter-spacing: -0.24px;
-  margin: 0 0 8px;
-  @media (max-width: 1024px) {
-    font-size: 20px;
-  }
-}
-p {
-  margin: 0;
+
+.animate-loading-bar {
+  animation: loading-bar 2.5s ease-in-out infinite;
 }
 
-code,
-.counter {
-  font-family: var(--mono);
-  display: inline-flex;
-  border-radius: 4px;
-  color: var(--text-h);
+/* ------------------------------------------------------------------ */
+/* Custom React Flow nodes                                             */
+/* ------------------------------------------------------------------ */
+
+.fossil-file-node {
+  background: white;
+  border: 2px solid var(--color-fossil-600);
+  border-radius: 8px;
+  padding: 8px 12px;
+  min-width: 160px;
+  max-width: 220px;
+  cursor: pointer;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
-code {
-  font-size: 15px;
-  line-height: 135%;
-  padding: 4px 8px;
-  background: var(--code-bg);
+.fossil-file-node:hover {
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.3);
+}
+
+.dark .fossil-file-node {
+  background: var(--color-fossil-800);
+}
+
+.fossil-module-node {
+  background: white;
+  border: 2px solid var(--color-accent);
+  border-radius: 10px;
+  padding: 10px 14px;
+  min-width: 180px;
+  max-width: 260px;
+  cursor: pointer;
+  transition: box-shadow 0.15s ease, border-color 0.15s ease;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.fossil-module-node:hover {
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.4);
+}
+
+.dark .fossil-module-node {
+  background: var(--color-fossil-700);
+}
+
+/* Connection handles */
+.fossil-handle {
+  width: 6px !important;
+  height: 6px !important;
+  background: var(--color-accent) !important;
+  border: none !important;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.fossil-file-node:hover .fossil-handle,
+.fossil-module-node:hover .fossil-handle {
+  opacity: 1;
+}
+
+/* Controls styling for both modes */
+.fossil-controls button {
+  border-radius: 6px !important;
+}
+
+/* MiniMap border radius */
+.react-flow__minimap {
+  border-radius: 8px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Sidebar scrollbar                                                    */
+/* ------------------------------------------------------------------ */
+
+aside::-webkit-scrollbar {
+  width: 4px;
+}
+
+aside::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+aside::-webkit-scrollbar-thumb {
+  background: var(--color-fossil-300);
+  border-radius: 2px;
+}
+
+.dark aside::-webkit-scrollbar-thumb {
+  background: var(--color-fossil-600);
+}
+
+/* line-clamp utility for ADR cards */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
