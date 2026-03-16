@@ -13,6 +13,7 @@ from services.cache import (
     cache_repo,
     get_cached_analysis,
     get_cached_repo,
+    insert_analytics,
 )
 from services.gemini_analyzer import analyze_repo as gemini_analyze
 from services.github_fetcher import fetch_repo_zipball
@@ -163,6 +164,9 @@ async def analyze_repo_endpoint(request: AnalyzeRequest):
 
         # 8. Cache the analysis
         await cache_analysis(cache_key, result_dict)
+
+        # 9. Record in analytics
+        await insert_analytics(cache_key, result_dict)
 
         _analysis_status[cache_key] = "complete"
         return result_dict
