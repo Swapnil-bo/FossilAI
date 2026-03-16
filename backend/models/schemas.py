@@ -61,6 +61,20 @@ class RefactorScenario(BaseModel):
 
 
 # ---------------------------------------------------------------------------
+# Refactor Simulation Result (Step 17)
+# ---------------------------------------------------------------------------
+
+class RefactorImpact(BaseModel):
+    risk_level: str = Field("medium", description="low | medium | high | critical")
+    summary: str = Field("", description="High-level impact assessment")
+    affected_files: list[str] = Field(default_factory=list, description="Files that would be affected")
+    new_edges: list[GraphEdge] = Field(default_factory=list, description="New dependency relationships created")
+    removed_edges: list[GraphEdge] = Field(default_factory=list, description="Dependency relationships removed")
+    steps: list[str] = Field(default_factory=list, description="Concrete refactoring steps in order")
+    potential_issues: list[str] = Field(default_factory=list, description="Things that could go wrong")
+
+
+# ---------------------------------------------------------------------------
 # Full Analysis Result
 # ---------------------------------------------------------------------------
 
