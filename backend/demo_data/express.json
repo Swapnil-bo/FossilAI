@@ -1,0 +1,185 @@
+{
+  "owner": "expressjs",
+  "repo": "express",
+  "file_count": 186,
+  "total_tokens_estimate": 142000,
+  "source": "demo",
+  "architecture": "Express.js follows a middleware-based architecture built on top of Node's HTTP module. The core is a thin wrapper (lib/express.js) that creates an application object inheriting from an EventEmitter. Routing is handled by a standalone Router class (lib/router/index.js) that matches URL patterns against a stack of Layer objects. Each Layer wraps a middleware function or a Route (which itself contains per-method handler stacks). The request/response lifecycle flows through this middleware chain sequentially — each handler calls next() to pass control downstream, forming the classic 'onion model' of request processing.\n\nThe application object (lib/application.js) delegates HTTP method registration to the Router and extends Node's req/res prototypes with convenience methods (lib/request.js, lib/response.js). View rendering is abstracted behind a View class (lib/view.js) that resolves template engines via file extension. Two built-in middleware — init (sets req/res prototypes) and query (parses query strings) — are mounted automatically on every app.",
+  "modules": "**lib/express.js** — Factory module. Exports createApplication() which builds a new app function, mixes in EventEmitter, attaches application.js methods, and exposes Router, Route, and static middleware as properties.\n\n**lib/application.js** — The app prototype. Handles settings (app.set/get), engine registration, middleware mounting (app.use), HTTP method delegation (app.get/post/...), and listen(). The core orchestrator.\n\n**lib/router/index.js** — Standalone Router class. Maintains an ordered stack of Layer objects. Implements route matching, param handling, and the next() dispatch loop. Can be used independently of the app.\n\n**lib/router/route.js** — Represents a single route (e.g., GET /users). Contains a per-method stack of handlers. Created by router.route().\n\n**lib/router/layer.js** — Wraps a single middleware function with a path pattern (compiled via path-to-regexp). Handles matching, parameter extraction, and error propagation.\n\n**lib/request.js** — Extends Node's IncomingMessage prototype with helpers: req.get(), req.accepts(), req.is(), req.ip, req.hostname, req.path, etc.\n\n**lib/response.js** — Extends Node's ServerResponse prototype with: res.send(), res.json(), res.redirect(), res.render(), res.sendFile(), res.status(), content negotiation, and cookie handling.\n\n**lib/view.js** — Template engine abstraction. Resolves file paths, caches lookups, and delegates rendering to registered engines.\n\n**lib/middleware/init.js** — Built-in middleware that sets req.res, res.req cross-references and applies the extended prototypes.\n\n**lib/middleware/query.js** — Built-in middleware that parses the URL query string using the qs module and attaches it to req.query.",
+  "dependency_graph": {
+    "nodes": [
+      {
+        "id": "lib/express.js",
+        "label": "express.js",
+        "type": "file",
+        "description": "Factory module — creates app instances, exports Router/Route/static"
+      },
+      {
+        "id": "lib/application.js",
+        "label": "application.js",
+        "type": "file",
+        "description": "App prototype — settings, middleware mounting, HTTP method delegation, listen()"
+      },
+      {
+        "id": "lib/router/index.js",
+        "label": "router/index.js",
+        "type": "file",
+        "description": "Standalone Router — maintains Layer stack, route matching, next() dispatch loop"
+      },
+      {
+        "id": "lib/router/route.js",
+        "label": "router/route.js",
+        "type": "file",
+        "description": "Single route with per-method handler stack"
+      },
+      {
+        "id": "lib/router/layer.js",
+        "label": "router/layer.js",
+        "type": "file",
+        "description": "Wraps middleware function with path matching via path-to-regexp"
+      },
+      {
+        "id": "lib/request.js",
+        "label": "request.js",
+        "type": "file",
+        "description": "Extended IncomingMessage prototype — req.get(), req.accepts(), req.ip, etc."
+      },
+      {
+        "id": "lib/response.js",
+        "label": "response.js",
+        "type": "file",
+        "description": "Extended ServerResponse prototype — res.send(), res.json(), res.redirect(), res.render()"
+      },
+      {
+        "id": "lib/view.js",
+        "label": "view.js",
+        "type": "file",
+        "description": "Template engine abstraction — path resolution, caching, engine delegation"
+      },
+      {
+        "id": "lib/middleware/init.js",
+        "label": "middleware/init.js",
+        "type": "file",
+        "description": "Built-in middleware — sets req/res cross-references and extended prototypes"
+      },
+      {
+        "id": "lib/middleware/query.js",
+        "label": "middleware/query.js",
+        "type": "file",
+        "description": "Built-in middleware — parses query strings via qs module"
+      }
+    ],
+    "edges": [
+      { "source": "lib/express.js", "target": "lib/application.js", "type": "import" },
+      { "source": "lib/express.js", "target": "lib/router/index.js", "type": "import" },
+      { "source": "lib/express.js", "target": "lib/router/route.js", "type": "import" },
+      { "source": "lib/express.js", "target": "lib/request.js", "type": "import" },
+      { "source": "lib/express.js", "target": "lib/response.js", "type": "import" },
+      { "source": "lib/express.js", "target": "lib/middleware/init.js", "type": "import" },
+      { "source": "lib/express.js", "target": "lib/middleware/query.js", "type": "import" },
+      { "source": "lib/application.js", "target": "lib/router/index.js", "type": "call" },
+      { "source": "lib/application.js", "target": "lib/view.js", "type": "call" },
+      { "source": "lib/router/index.js", "target": "lib/router/route.js", "type": "call" },
+      { "source": "lib/router/index.js", "target": "lib/router/layer.js", "type": "call" },
+      { "source": "lib/router/route.js", "target": "lib/router/layer.js", "type": "call" },
+      { "source": "lib/middleware/init.js", "target": "lib/request.js", "type": "import" },
+      { "source": "lib/middleware/init.js", "target": "lib/response.js", "type": "import" },
+      { "source": "lib/response.js", "target": "lib/view.js", "type": "call" }
+    ]
+  },
+  "adrs": [
+    {
+      "title": "Middleware chain as the core abstraction",
+      "context": "Express needed a composable way to process HTTP requests through multiple stages — parsing, auth, routing, error handling — without coupling them together.",
+      "decision": "Adopted the middleware pattern where every handler receives (req, res, next) and calls next() to pass control. The Router maintains an ordered stack of Layer objects and dispatches through them sequentially.",
+      "consequences": "Extremely flexible — any functionality can be injected as middleware. However, the ordering is implicit (depends on app.use() call order), which is a common source of bugs for new users. Error middleware must have exactly 4 parameters (err, req, res, next) to be detected.",
+      "status": "accepted"
+    },
+    {
+      "title": "Prototype extension over subclassing for req/res",
+      "context": "Express needed to add convenience methods (req.get, res.json, res.send) to Node's native request and response objects without breaking compatibility with the underlying HTTP module.",
+      "decision": "Used Object.create() to create new prototypes inheriting from http.IncomingMessage.prototype and http.ServerResponse.prototype, then mixed in Express-specific methods. Each app instance sets these prototypes on incoming requests via the init middleware.",
+      "consequences": "Zero-overhead for unused methods (they live on the prototype, not each instance). But it means Express mutates objects it doesn't own, which can conflict with other libraries that also extend req/res. This is a deliberate trade-off favoring developer ergonomics.",
+      "status": "accepted"
+    },
+    {
+      "title": "Router as a standalone mountable component",
+      "context": "Applications needed a way to modularize route definitions into separate files and mount them at different path prefixes.",
+      "decision": "Made Router a first-class, independently instantiable object (express.Router()) that can be used as middleware via app.use('/prefix', router). The Router has the same dispatch logic as the app itself.",
+      "consequences": "Enables clean separation of concerns — each feature/module can define its own router. This pattern became the de facto standard for Express app organization. The downside is that the Router duplicates some logic from application.js.",
+      "status": "accepted"
+    },
+    {
+      "title": "Lazy routing — defer Router creation until first route",
+      "context": "Not every Express app needs routing (some are pure middleware pipelines). Creating a Router on app construction would waste memory in those cases.",
+      "decision": "The app lazily creates its internal Router on the first call to app.use(), app.route(), or any HTTP method helper (app.get, app.post, etc.).",
+      "consequences": "Slightly reduces startup memory for middleware-only apps. The trade-off is more complex initialization code in application.js with _router checks scattered throughout.",
+      "status": "accepted"
+    },
+    {
+      "title": "View system decoupled via engine registration",
+      "context": "Express needed to support multiple template engines (Pug, EJS, Handlebars) without bundling any of them.",
+      "decision": "Template engines are registered via app.engine(ext, callback) and resolved by file extension. The View class handles path resolution and delegates rendering to the registered callback. No engines are included by default.",
+      "consequences": "Complete engine flexibility — any function matching the (path, options, callback) signature works. However, error messages when no engine is registered are confusing for beginners. The __express convention for auto-detection adds implicit behavior.",
+      "status": "accepted"
+    }
+  ],
+  "tech_debt": [
+    {
+      "file": "lib/router/index.js",
+      "type": "complexity",
+      "severity": "high",
+      "description": "The Router.handle() method is over 150 lines with deeply nested callbacks, multiple trim() workarounds for trailing slashes, and complex param processing logic interleaved with dispatch logic.",
+      "suggested_fix": "Extract param processing into a dedicated middleware. Split handle() into match(), dispatch(), and processParams() functions."
+    },
+    {
+      "file": "lib/response.js",
+      "type": "complexity",
+      "severity": "high",
+      "description": "res.send() contains branching logic for Buffer, String, Object, and Number types with implicit content-type detection, ETag generation, and HEAD request handling — all in one 80-line function.",
+      "suggested_fix": "Extract type-specific serializers and move ETag logic into a separate middleware or utility."
+    },
+    {
+      "file": "lib/application.js",
+      "type": "duplication",
+      "severity": "medium",
+      "description": "HTTP method helpers (app.get, app.post, app.put, etc.) are generated via a methods.forEach loop that creates near-identical functions. The app.get() method is overloaded to also serve as a settings getter, requiring a special-case arity check.",
+      "suggested_fix": "Separate app.setting() from app.get() to remove the overload ambiguity. Consider using a Proxy-based approach for method delegation."
+    },
+    {
+      "file": "lib/view.js",
+      "type": "outdated",
+      "severity": "medium",
+      "description": "View uses synchronous fs.statSync() for template file resolution, which blocks the event loop during rendering. The lookup logic also manually implements a path resolution algorithm that could use modern path utilities.",
+      "suggested_fix": "Replace statSync with an async stat and cache the results. Use a path resolution strategy pattern to simplify lookup."
+    },
+    {
+      "file": "lib/request.js",
+      "type": "tight_coupling",
+      "severity": "low",
+      "description": "req.hostname and req.ip rely on the app's 'trust proxy' setting via this.app.get('trust proxy fn'), creating a circular dependency between the request prototype and the application object.",
+      "suggested_fix": "Pass trust proxy configuration through middleware context rather than reaching back into the app instance."
+    }
+  ],
+  "refactor_scenarios": [
+    {
+      "title": "Extract Router into a separate package",
+      "description": "The Router (router/index.js, route.js, layer.js) is already largely standalone. Extracting it into its own npm package would allow other frameworks to reuse Express's battle-tested routing without the full Express dependency.",
+      "target_files": ["lib/router/index.js", "lib/router/route.js", "lib/router/layer.js"],
+      "impact": "High — enables ecosystem reuse. Express itself would depend on the extracted package. Breaking change for internal require() paths."
+    },
+    {
+      "title": "Replace prototype mutation with ES6 class inheritance",
+      "description": "Modernize req/res extension from Object.create() + mixin pattern to proper ES6 class extends. This would improve TypeScript compatibility, IDE autocompletion, and make the inheritance chain explicit.",
+      "target_files": ["lib/request.js", "lib/response.js", "lib/middleware/init.js", "lib/express.js"],
+      "impact": "Medium — better DX and tooling support. Risk of breaking middleware that relies on prototype chain inspection."
+    },
+    {
+      "title": "Make res.send() async-aware with automatic HEAD handling",
+      "description": "Refactor res.send() to use an internal pipeline of serializers (Buffer → pass-through, Object → JSON, String → HTML) with ETag as an opt-in middleware, and move HEAD body-stripping to the HTTP layer.",
+      "target_files": ["lib/response.js"],
+      "impact": "Medium — cleaner code, easier to extend with custom serializers. Would require careful backward-compat testing."
+    }
+  ],
+  "warnings": []
+}
