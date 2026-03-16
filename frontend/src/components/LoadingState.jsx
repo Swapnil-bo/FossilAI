@@ -111,7 +111,7 @@ function StageIndicator({ stage, currentStage }) {
 function SkeletonBlock({ className = '' }) {
   return (
     <div
-      className={`bg-fossil-200 dark:bg-fossil-700 rounded animate-pulse ${className}`}
+      className={`rounded animate-shimmer ${className}`}
     />
   )
 }
