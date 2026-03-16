@@ -30,8 +30,8 @@ function FileNode({ data, selected }) {
 
   return (
     <div
-      className={`fossil-file-node ${selected ? 'ring-2 ring-accent' : ''}`}
-      style={{ borderColor: data.borderColor }}
+      className={`fossil-file-node ${selected ? 'ring-2 ring-accent' : ''} ${data.highlighted ? 'fossil-node-pulse' : ''}`}
+      style={{ borderColor: data.highlighted ? '#8b5cf6' : data.borderColor }}
     >
       <Handle type="target" position={Position.Top} className="fossil-handle" />
 
@@ -74,8 +74,8 @@ function FileNode({ data, selected }) {
 function ModuleNode({ data, selected }) {
   return (
     <div
-      className={`fossil-module-node ${selected ? 'ring-2 ring-accent' : ''}`}
-      style={{ borderColor: data.borderColor }}
+      className={`fossil-module-node ${selected ? 'ring-2 ring-accent' : ''} ${data.highlighted ? 'fossil-node-pulse' : ''}`}
+      style={{ borderColor: data.highlighted ? '#8b5cf6' : data.borderColor }}
     >
       <Handle type="target" position={Position.Top} className="fossil-handle" />
 
@@ -208,6 +208,7 @@ function EmptyGraph() {
 export default function DependencyGraph() {
   const { state, dispatch } = useAnalysisContext()
   const { dependency_graph, tech_debt } = state.analysisResult || {}
+  const { highlightedNodes } = state
 
   // 1. Transform backend data → React Flow format
   const { nodes: rawNodes, edges: rawEdges } = useMemo(
@@ -221,9 +222,29 @@ export default function DependencyGraph() {
     [rawNodes, tech_debt],
   )
 
+  // 2b. Apply refactor highlight (pulse) to affected nodes
+  const highlightedColoredNodes = useMemo(() => {
+    if (!highlightedNodes || highlightedNodes.length === 0) return coloredNodes
+
+    const highlightSet = new Set(highlightedNodes)
+    return coloredNodes.map((node) => {
+      // Match by exact id, or if any highlighted file ends with or contains the node id
+      const isHighlighted =
+        highlightSet.has(node.id) ||
+        highlightedNodes.some(
+          (hf) => node.id.endsWith(hf) || hf.endsWith(node.id) || node.id.includes(hf) || hf.includes(node.id)
+        )
+
+      if (isHighlighted) {
+        return { ...node, data: { ...node.data, highlighted: true } }
+      }
+      return node
+    })
+  }, [coloredNodes, highlightedNodes])
+
   // 3. Apply dagre layout
   const { nodes: layoutedNodes, edges: layoutedEdges } = useGraphLayout(
-    coloredNodes,
+    highlightedColoredNodes,
     rawEdges,
   )
 
