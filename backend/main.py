@@ -4,6 +4,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from config import ALLOWED_ORIGINS, ALLOW_ORIGIN_REGEX
 from routers.health import router as health_router
 from routers.analyze import router as analyze_router
+from routers.refactor import router as refactor_router
+from routers.chat import router as chat_router
+from routers.demo import router as demo_router
+from routers.analytics import router as analytics_router
 from services.cache import init_db
 
 app = FastAPI(
@@ -23,6 +27,10 @@ app.add_middleware(
 
 app.include_router(health_router)
 app.include_router(analyze_router)
+app.include_router(refactor_router)
+app.include_router(chat_router)
+app.include_router(demo_router)
+app.include_router(analytics_router)
 
 
 @app.on_event("startup")
