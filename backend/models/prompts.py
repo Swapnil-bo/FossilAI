@@ -118,15 +118,51 @@ if the following refactoring scenario were applied.
 Scenario: {scenario}
 Target files: {target_files}
 
-For the simulation, provide:
-1. **Impact Assessment** — Which files and modules would be affected?
-2. **Risk Level** — Low / Medium / High / Critical
-3. **Steps Required** — Concrete steps to implement this refactoring
-4. **New Dependencies** — Any new dependency relationships created
-5. **Removed Dependencies** — Any dependency relationships removed
-6. **Potential Issues** — What could go wrong?
+For the simulation, respond with clearly labeled sections using the exact headers below.
+
+[RISK_LEVEL]
+State exactly one of: low, medium, high, critical
+
+[IMPACT_SUMMARY]
+A concise paragraph summarizing the overall impact of this refactoring.
+
+[AFFECTED_FILES]
+List every file that would need to change, one per line. Use the file paths from the analysis.
+
+[STEPS]
+Numbered list of concrete steps to implement this refactoring, in order.
+
+[NEW_DEPENDENCIES]
+List any new dependency relationships that would be created. Format each as:
+source_file -> target_file (type: import|call|inherit)
+If none, write "None".
+
+[REMOVED_DEPENDENCIES]
+List any dependency relationships that would be removed. Format each as:
+source_file -> target_file (type: import|call|inherit)
+If none, write "None".
+
+[POTENTIAL_ISSUES]
+List things that could go wrong, one per line.
 
 <analysis>
 {analysis}
 </analysis>
+"""
+
+GROQ_REFACTOR_IMPACT_PROMPT = """\
+Extract the refactoring simulation result from this analysis as a JSON object.
+Return ONLY valid JSON. No markdown fences. No explanation.
+
+Expected shape:
+{{"risk_level": "medium", "summary": "impact summary text", "affected_files": ["file1.py", "file2.js"], "new_edges": [{{"source": "file1.py", "target": "file2.py", "type": "import"}}], "removed_edges": [{{"source": "file3.py", "target": "file4.py", "type": "call"}}], "steps": ["Step 1 description", "Step 2 description"], "potential_issues": ["Issue 1", "Issue 2"]}}
+
+Rules:
+- "risk_level" must be one of: "low", "medium", "high", "critical"
+- "type" for edges must be one of: "import", "call", "inherit"
+- Keep steps as concise action items
+- Use actual file paths from the analysis
+
+Refactoring simulation output:
+{section}
 """
