@@ -300,12 +300,6 @@ FossilAI/
 
 ---
 
-## License
-
-MIT License. See [LICENSE](LICENSE) for details.
-
----
-
 <p align="center">
   Built by <a href="https://github.com/yourusername">Swapnil Hazra</a> · Powered by Gemini + Groq · Visualized with React Flow
 </p>
