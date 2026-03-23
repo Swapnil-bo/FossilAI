@@ -26,6 +26,10 @@
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge" alt="MIT License" /></a>
 </p>
 
+<p align="center">
+  <a href="https://fossil-ai.vercel.app/"><strong>🔗 Live Demo → fossil-ai.vercel.app</strong></a>
+</p>
+
 ---
 
 ## What It Does
@@ -46,6 +50,8 @@ FossilAI takes any public GitHub repository URL and produces a full architectura
 
 ## Demo
 
+> **[Try it live → fossil-ai.vercel.app](https://fossil-ai.vercel.app/)**
+>
 > Paste a GitHub URL → watch the AI analyze → explore the interactive results
 
 ![FossilAI Demo](demo.gif)
