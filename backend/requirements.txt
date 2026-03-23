@@ -3,3 +3,4 @@ uvicorn
 httpx
 aiosqlite
 python-dotenv
+pydantic
