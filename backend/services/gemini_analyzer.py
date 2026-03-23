@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 
 GEMINI_API_URL = (
     "https://generativelanguage.googleapis.com/v1beta/"
-    "models/gemini-2.5-flash-preview-04-17:generateContent"
+    "models/gemini-2.0-flash:generateContent"
 )
 
 _gemini_limiter = AsyncRateLimiter(rpm=GEMINI_RPM, base_backoff=1.0, max_backoff=64.0)
